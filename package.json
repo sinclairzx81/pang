@@ -1,0 +1,27 @@
+{
+  "name": "pang",
+  "version": "0.5.0",
+  "description": "A simple dependency injection library for node",
+  "main": "app.js",
+  "bin": {
+    "pang": "pang.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sinclairzx81/pang.git"
+  },
+  "keywords": [
+    "di",
+    "dependency",
+    "injection"
+  ],
+  "author": "sinclair",
+  "license": "mit",
+  "bugs": {
+    "url": "https://github.com/sinclairzx81/pang/issues"
+  },
+  "homepage": "https://github.com/sinclairzx81/pang"
+}
