@@ -6,8 +6,6 @@ kernel.factory('server', ['configuration', 'repository'], function (configuratio
 
     console.log('setup: server')
 
-    console.log(repository)
-
     return {
 
     }
@@ -20,7 +18,7 @@ kernel.factory('repository', ['configuration'], function (configuration) {
 
     return {
 
-        name: 'fluff fluff'
+        
     }
 
 })
