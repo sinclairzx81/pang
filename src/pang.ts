@@ -1,5 +1,5 @@
 ﻿/*--------------------------------------------------------------------------
-Pang - A simple dependency injection  lbrary for nodejs
+pang - A simple dependency injection library for nodejs
 
 The MIT License (MIT)
 
@@ -24,9 +24,9 @@ THE SOFTWARE.
 
 module pang {
 
-    export class KernelDependency {
+    export class Dependency {
 
-        constructor(public kernel      : pang.Kernel, 
+        constructor(public domain      : pang.Domain, 
 
                     public name        : string,
 
@@ -45,7 +45,7 @@ module pang {
 
                 var dependancies = this.names.map((name, index, list) => {
 
-                    var dependency = this.kernel.get(name)
+                    var dependency = this.domain.dependency(name)
 
                     if(dependency) {
 
@@ -64,26 +64,54 @@ module pang {
         }
     }
 
-    export class Kernel {
+    export class Domain {
 
-        private dependencies: KernelDependency[]
+        private dependencies: Dependency[]
 
         constructor () {
 
             this.dependencies = []
-
         }
 
-        public factory(name:string, names:string[], initializer: (...args:any[]) => any) : Kernel {
+        /**
+        * sets up a factory on this domain
+        */
+        public factory(name:string, initializer: (...args:any[]) => any) : Domain {
 
-            var dependency = new KernelDependency(this, name, names, initializer, false, null)
+            if(!this.isfunction(initializer)) {
+
+                throw Error('pang: initializer should be a function.')
+            }
+
+            var names      = this.extractargs(initializer)
+
+            var dependency = new Dependency(this, name, names, initializer, false, null)
 
             this.dependencies.push(dependency)
 
             return this
         }
 
-        public get(name: string) : KernelDependency {
+        /**
+        * returns the instance associated with this name
+        */
+        public get(name: string) : any {
+
+            for(var i = 0; i < this.dependencies.length; i++) {
+
+                if(this.dependencies[i].name == name) {
+
+                    return this.dependencies[i].instance
+                }
+            }
+
+            return null
+        }
+
+        /**
+        * returns the dependency type on this domain
+        */
+        public dependency(name: string) : Dependency {
 
             for(var i = 0; i < this.dependencies.length; i++) {
 
@@ -96,6 +124,9 @@ module pang {
             return null
         }
 
+        /**
+        * starts the domain
+        */
         public start(): void {
 
             for(var i = 0; i < this.dependencies.length; i++) {
@@ -103,11 +134,38 @@ module pang {
                 this.dependencies[i].initialize()
             }
         }
+        /**
+        * tests this object to ensure its a function
+        */
+        private isfunction(obj:any) : boolean {
+
+            var getType = {};
+            
+            return obj && getType.toString.call(obj) === '[object Function]'
+        }
+
+        /**
+        * extracts the arguments from this function
+        */
+        private extractargs(func: Function) : string[] {
+
+	        var match = /\(([^)]+)/.exec(func.toString());
+	        
+            if (match[1]) {
+
+		        var arguments = match[1].split(/\s*,\s*/);
+	        }
+
+	        return arguments
+        }
     }
 
-    export function kernel() : Kernel {
+    /**
+    * returns a new domain
+    */
+    export function domain () : Domain {
 
-        return new Kernel();
+        return new Domain();
     }
 }
 

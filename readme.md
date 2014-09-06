@@ -13,23 +13,38 @@ all application types, they are ommited for clarify.
 
 var pang = require('pang')
 
-var kernel = pang.kernel()
+var domain = pang.domain()
 
-kernel.factory('configuration', [], function(){
+//---------------------------------------
+// no injection
+//---------------------------------------
+domain.factory('configuration', function(){
 	
 	return new Configuration()
 })
 
-kernel.factory('repository', function(repository) {
+//---------------------------------------
+// configuration injected on repository
+//---------------------------------------
+domain.factory('repository', function(configuration) {
 
-	return new Repository(repository)
+	return new Repository(configuration)
 })
 
-kernel.factory('server', ['configuration', 'repository'], function(configuration, repository) {
-
+//--------------------------------------------------
+// configuration and repository injected on server
+//--------------------------------------------------
+domain.factory('server', function(configuration, repository) {
+	
 	return new Server(configuration, repository)
 })
 
-kernel.start()
+domain.start()
+
+//--------------------------------------------------
+// get a instance from the domain
+//--------------------------------------------------
+
+var server = domain.get('server')
 
 ```

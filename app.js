@@ -1,29 +1,27 @@
-﻿var pang = require('./bin/pang.js')
+﻿var pang = require('./bin/index.js')
 
-var kernel = pang.kernel()
+var domain = pang.domain()
 
-kernel.factory('server', ['configuration', 'repository'], function (configuration, repository) {
+domain.factory('server', function (configuration, repository) {
 
     console.log('setup: server')
 
     return {
-
-    }
-
-})
-
-kernel.factory('repository', ['configuration'], function (configuration) {
-
-    console.log('setup: repository')
-
-    return {
-
         
     }
 
 })
 
-kernel.factory('configuration', [], function () {
+domain.factory('repository', function (configuration) {
+
+    console.log('setup: repository')
+
+    return {
+
+    }
+})
+
+domain.factory('configuration', function () {
 
     console.log('setup: configuration')
 
@@ -31,6 +29,8 @@ kernel.factory('configuration', [], function () {
 
     }
 
-}).start(function (errors) {
+}).start()
 
-})
+var server = domain.get('server')
+
+console.log(server)
