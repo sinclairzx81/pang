@@ -39,7 +39,7 @@ module pang {
                     public instance    : any) {
         }
 
-        public initialize(): void {
+        public boot (): void {
 
             if(!this.initialized) {
 
@@ -49,7 +49,7 @@ module pang {
 
                     if(dependency) {
 
-                        dependency.initialize()
+                        dependency.boot()
 
                         return dependency.instance
                     }
@@ -66,9 +66,13 @@ module pang {
 
     export class Domain {
 
-        private dependencies: Dependency[]
+        private started      : boolean
+        
+        private dependencies : Dependency[]
 
         constructor () {
+
+            this.started      = false
 
             this.dependencies = []
         }
@@ -76,7 +80,7 @@ module pang {
         /**
         * sets up a factory on this domain
         */
-        public factory(name:string, initializer: (...args:any[]) => any) : Domain {
+        public factory    (name:string, initializer: (...args:any[]) => any) : Domain {
 
             if(!this.isfunction(initializer)) {
 
@@ -93,9 +97,11 @@ module pang {
         }
 
         /**
-        * returns the instance associated with this name
+        * returns a single instance of this dependency
         */
-        public get(name: string) : any {
+        public singleton  (name: string) : any {
+
+            this.start()
 
             for(var i = 0; i < this.dependencies.length; i++) {
 
@@ -109,9 +115,42 @@ module pang {
         }
 
         /**
-        * returns the dependency type on this domain
+        * returns a transient / new instance of this dependency
         */
-        public dependency(name: string) : Dependency {
+        public transient  (name: string) : any {
+
+            var domain = new pang.Domain()
+
+            for(var i = 0; i < this.dependencies.length; i++) {
+
+                var dependency = new Dependency(domain, this.dependencies[i].name, this.dependencies[i].names, this.dependencies[i].initializer, false, null)
+
+                domain.dependencies.push(dependency)
+            }
+
+            for(var i = 0; i < domain.dependencies.length; i++) {
+
+                if(domain.dependencies[i].name == name) {
+
+                    domain.dependencies[i].boot()
+
+                    var instance = domain.dependencies[i].instance
+
+                    domain.dependencies = []
+
+                    return instance
+                }
+            }
+            
+            domain.dependencies = []
+
+            return null
+        }
+
+        /**
+        * returns a dependency managed in this domain.
+        */
+        public dependency (name: string) : Dependency {
 
             for(var i = 0; i < this.dependencies.length; i++) {
 
@@ -129,11 +168,17 @@ module pang {
         */
         public start(): void {
 
-            for(var i = 0; i < this.dependencies.length; i++) {
+            if(!this.started) {
+                
+                this.started = true
+                
+                for(var i = 0; i < this.dependencies.length; i++) {
 
-                this.dependencies[i].initialize()
+                    this.dependencies[i].boot()
+                }
             }
         }
+
         /**
         * tests this object to ensure its a function
         */
@@ -149,11 +194,16 @@ module pang {
         */
         private extractargs(func: Function) : string[] {
 
-	        var match = /\(([^)]+)/.exec(func.toString());
+	        var match = /\(([^)]+)/.exec(func.toString())
 	        
+            if(!match) {
+
+                return []
+            }
+
             if (match[1]) {
 
-		        var arguments = match[1].split(/\s*,\s*/);
+		        var arguments = match[1].split(/\s*,\s*/)
 	        }
 
 	        return arguments

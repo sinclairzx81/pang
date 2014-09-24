@@ -6,8 +6,7 @@
 
 ### example
 
-The following example illustates setting up a pang kernel. Configuration, Repository and Server are
-all application types, they are ommited for clarify.
+The following example illustates setting up a pang domain/kernel.
 
 ```javascript
 
@@ -15,36 +14,35 @@ var pang = require('pang')
 
 var domain = pang.domain()
 
-//---------------------------------------
-// no injection
-//---------------------------------------
-domain.factory('configuration', function(){
+domain.factory('configuration', function() {
 	
 	return new Configuration()
 })
 
-//---------------------------------------
-// configuration injected on repository
-//---------------------------------------
 domain.factory('repository', function(configuration) {
 
 	return new Repository(configuration)
 })
 
-//--------------------------------------------------
-// configuration and repository injected on server
-//--------------------------------------------------
 domain.factory('server', function(configuration, repository) {
 	
 	return new Server(configuration, repository)
 })
 
-domain.start()
+### domain.start()
 
-//--------------------------------------------------
-// get a instance from the domain
-//--------------------------------------------------
+Boots all instances in this domain and caches within the domain.
 
-var server = domain.get('server')
+	domain.start()
 
-```
+### domain.singleton()
+
+Returns a singleton instance from the domain. Will automatically start() the domain if not already started.
+
+	var instance = domain.singleton('server')
+
+### domain.transient()
+
+Returns a transient (new) instance from the domain.
+
+	var instance = domain.transient('server')

@@ -1,4 +1,4 @@
-﻿Pang - A simple dependency injection  lbrary for nodejs
+﻿pang - A simple dependency injection library for nodejs
 
 The MIT License (MIT)
 
