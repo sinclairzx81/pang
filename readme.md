@@ -28,7 +28,7 @@ domain.factory('server', function(configuration, repository) {
 	
 	return new Server(configuration, repository)
 })
-
+```
 ### domain.start()
 
 Boots all instances in this domain and caches within the domain.
