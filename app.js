@@ -1,8 +1,17 @@
-﻿var pang = require('./bin/index.js')
+﻿var pang   = require('./bin/index.js')
 
 var domain = pang.domain()
 
-domain.factory('server', function (provider, provider) {
+domain.factory('info', {
+
+    version    : '0.1.8',
+
+    name       : 'my test application',
+
+    decription : 'a simple di framework for nodejs'
+})
+
+domain.factory('server', function (provider, provider, version, http) {
 
     console.log('setup: server')
 
@@ -56,12 +65,14 @@ domain.factory('configuration', function () {
         
     }
 })
- 
+
 domain.singleton('server')
 
 console.log('------------------------')
 
-var server = domain.transient('server')
+var server  = domain.transient('server')
+
+
 
 
 

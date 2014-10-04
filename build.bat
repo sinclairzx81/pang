@@ -1,4 +1,4 @@
-tsc --out bin/index.js src/pang.ts
+tsc --out bin/index.js src/pang.ts --declaration
 
 cp package.json bin/package.json
 
