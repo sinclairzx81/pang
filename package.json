@@ -1,6 +1,6 @@
 {
   "name": "pang",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "description": "A simple dependency injection library for node",
   "main": "index.js",
   "scripts": {},
