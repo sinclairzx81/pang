@@ -16,6 +16,12 @@ var domain = pang.domain()
 
 domain.factory('http', require('http'))
 
+domain.factory('configuration', {
+	server: {
+		port: 8080
+	}
+})
+
 domain.factory('repository', function(configuration) {
 
 	return new Repository(configuration)
