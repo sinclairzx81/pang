@@ -27,26 +27,26 @@ module pang {
 
     export class Dependency {
 
-        constructor(public domain: pang.Domain,
+        constructor(public domain     : pang.Domain,
 
-                    public name: string,
+                    public name       : string,
 
-                    public names: string[],
+                    public names      : string[],
 
-                    public initializer: (...args: any[]) => any,
+                    public initializer : (...args: any[]) => any,
 
-                    public initialized: boolean,
+                    public initialized : boolean,
 
-                    public instance: any) {
+                    public instance    : any) {
         }
 
         public boot(): void {
 
             if (!this.initialized) {
-
+                
                 var dependancies = this.names.map((name, index, list) => {
 
-                    var dependency = this.domain.dependency(name)
+                    var dependency = this.domain.get_dependency(name)
 
                     if (dependency) {
 
@@ -54,6 +54,7 @@ module pang {
 
                         return dependency.instance
                     }
+
                     return null
                 })
 
@@ -66,21 +67,18 @@ module pang {
 
     export class Domain {
 
-        private started      : boolean
-
         private dependencies : Dependency[]
 
         constructor() {
 
-            this.started = false
-
             this.dependencies = []
         }
 
-        /**
-        * sets up a factory on this domain
-        */
-        public factory(name: string, initializer: (...args: any[]) => any): Domain {
+        //----------------------------------------------
+        // create a new dependency
+        //----------------------------------------------
+
+        public factory(name: string, initializer: (...args: any[]) => any): pang.Domain {
 
             if (this.isfunction(initializer)) {
                 
@@ -90,9 +88,9 @@ module pang {
 
                 return this
             }
-
-            this.dependencies.push(new Dependency(this, name, [], () => {
-
+            
+            this.dependencies.push(new pang.Dependency(this, name, [], () => {
+                
                 return initializer
 
             }, false, null))
@@ -100,63 +98,78 @@ module pang {
             return this
         }
 
-        /**
-        * returns a single instance of this dependency
-        */
+        //----------------------------------------------
+        // returns a single instance of this dependency
+        //----------------------------------------------
+
         public singleton(name: string): any {
 
-            this.start()
+            var dependency = this.get_dependency(name)
 
-            for (var i = 0; i < this.dependencies.length; i++) {
+            var instance   = null
 
-                if (this.dependencies[i].name == name) {
+            if (dependency) {
 
-                    return this.dependencies[i].instance
-                }
+                dependency.boot()
+
+                instance = dependency.instance
             }
 
-            return null
+            return instance
         }
 
-        /**
-        * returns a transient / new instance of this dependency
-        */
+        //----------------------------------------------
+        // returns a new instance of this dependency
+        //----------------------------------------------
+
         public transient(name: string): any {
 
             var domain = new pang.Domain()
 
             for (var i = 0; i < this.dependencies.length; i++) {
 
-                domain.dependencies.push(new Dependency(domain, 
-                                                        this.dependencies[i].name,
-                                                        this.dependencies[i].names,
-                                                        this.dependencies[i].initializer,
-                                                        false, null))
+                domain.dependencies.push(new Dependency(domain, this.dependencies[i].name,
+
+                                                                this.dependencies[i].names,
+
+                                                                this.dependencies[i].initializer,
+
+                                                                false, null))
             }
 
-            for (var i = 0; i < domain.dependencies.length; i++) {
+            var dependency = domain.get_dependency(name)
 
-                if (domain.dependencies[i].name == name) {
+            var instance   = null
 
-                    domain.dependencies[i].boot()
+            if (dependency) {
 
-                    var instance = domain.dependencies[i].instance
+                dependency.boot()
 
-                    domain.dependencies = []
-
-                    return instance
-                }
+                instance = dependency.instance
             }
 
             domain.dependencies = []
 
-            return null
+            return instance
         }
 
-        /**
-        * returns a dependency managed in this domain.
-        */
-        public dependency(name: string): Dependency {
+        //----------------------------------------------
+        // starts all dependencies 
+        //----------------------------------------------
+
+        public start(): void {
+
+            for (var i = 0; i < this.dependencies.length; i++) {
+
+                this.dependencies[i].boot()
+            }
+        }
+
+        //----------------------------------------------
+        // returns a single instance of this dependency
+        //----------------------------------------------
+
+        public get_dependency(name: string): pang.Dependency {
 
             for (var i = 0; i < this.dependencies.length; i++) {
 
@@ -169,34 +182,22 @@ module pang {
             return null
         }
 
-        /**
-        * starts the domain
-        */
-        public start(): void {
 
-            if (!this.started) {
+        //----------------------------------------------
+        // tests for a function
+        //----------------------------------------------
 
-                this.started = true
-
-                for (var i = 0; i < this.dependencies.length; i++) {
-
-                    this.dependencies[i].boot()
-                }
-            }
-        }
-
-        /**
-        * tests this object to ensure its a function
-        */
         private isfunction(obj: any): boolean {
+
             var getType = {}
 
             return obj && getType.toString.call(obj) === '[object Function]'
         }
 
-        /**
-        * extracts the arguments from this function
-        */
+        //----------------------------------------------
+        // extracts parameter names from a function
+        //----------------------------------------------
+
         private extractargs(func: Function): string[] {
 
             var match = /\(([^)]+)/.exec(func.toString())
@@ -208,16 +209,18 @@ module pang {
                     return match[1].split(/\s*,\s*/)
                 }
             }
+
 	        return []
         }
     }
 
-    /**
-    * returns a new domain
-    */
-    export function domain(): Domain {
+    //----------------------------------------------
+    // returns a new domain
+    //----------------------------------------------
 
-        return new Domain();
+    export function domain(): pang.Domain {
+
+        return new pang.Domain()
     }
 }
 

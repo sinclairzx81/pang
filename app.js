@@ -11,66 +11,36 @@ domain.factory('info', {
     decription : 'a simple di framework for nodejs'
 })
 
-domain.factory('server', function (provider, provider, version, http) {
+domain.factory('a', function () {
 
-    console.log('setup: server')
+    console.log('setup: a')
 
-    return {
-        
-    }
+    return { }
 })
 
-domain.factory('mailer', function (configuration) {
+domain.factory('b', function () {
 
-    console.log('setup: mailer')
+    console.log('setup: b')
 
-    return {
-        
-    }
+    return { }
 })
 
-domain.factory('provider', function (configuration, notifications, repository) {
+domain.factory('c', function (a, info) {
 
-    console.log('setup: provider')
+    console.log('setup: c')
 
-    return {
-        
-    }
+    return { }
 })
-
-domain.factory('notifications', function (configuration, mailer) {
-
-    console.log('setup: notifications')
-
-    return {
-        
-    }
-})
-
-
-domain.factory('repository', function (configuration) {
-
-    console.log('setup: repository')
-
-    return {
-        
-    }
-})
-
-domain.factory('configuration', function () {
-
-    console.log('setup: configuration')
-
-    return {
-        
-    }
-})
-
-domain.singleton('server')
 
 console.log('------------------------')
 
-var server  = domain.transient('server')
+var server = domain.singleton('c')
+
+
+
+
+
+
 
 
 
