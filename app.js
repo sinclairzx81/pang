@@ -2,14 +2,7 @@
 
 var domain = pang.domain()
 
-domain.factory('info', {
-
-    version    : '0.1.8',
-
-    name       : 'my test application',
-
-    decription : 'a simple di framework for nodejs'
-})
+domain.config('configuration', 'c:/input/config.json')
 
 domain.factory('a', function () {
 
@@ -35,6 +28,9 @@ domain.factory('c', function (a, info) {
 console.log('------------------------')
 
 var server = domain.singleton('c')
+
+console.log(domain.singleton('configuration'))
+
 
 
 

@@ -22,6 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 ---------------------------------------------------------------------------*/
 
+/// <reference path="references/node.d.ts" />
 
 module pang {
 
@@ -67,11 +68,35 @@ module pang {
 
     export class Domain {
 
-        private dependencies : Dependency[]
+        private fs           : typeof fs   = require('fs')
+
+        private path         : typeof path = require('path')
+
+        private dependencies : pang.Dependency[]
 
         constructor() {
 
             this.dependencies = []
+        }
+
+        //----------------------------------------------
+        // create config dependency
+        //----------------------------------------------
+
+        public config(name: string, filename: string) : pang.Domain {
+
+            this.dependencies.push(new Dependency(this, name, [], () => {
+
+                var directory = this.path.dirname(filename)
+
+                return JSON.parse(this.fs.readFileSync(filename, 'utf8')
+                                                    
+                                            .replace(new RegExp('~', 'g'), directory)
+                                                   
+                                            .replace(new RegExp('/\\/', 'g'), '/'))                       
+            }, false, null))
+
+            return this
         }
 
         //----------------------------------------------
@@ -227,7 +252,5 @@ module pang {
 //-----------------------------
 // export
 //-----------------------------
-
-declare var module: any
 
 module.exports = pang
