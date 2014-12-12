@@ -93,7 +93,7 @@ module pang {
                                                     
                                             .replace(new RegExp('~', 'g'), directory)
                                                    
-                                            .replace(new RegExp('/\\/', 'g'), '/'))                       
+                                            .replace(/\\/g, '/'))                       
             }, false, null))
 
             return this
